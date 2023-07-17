@@ -15,7 +15,7 @@
 
 Пример формы и того, как должна выглядеть итоговая таблица, составленная на её основании.
 
-<img src="https://github.com/olga-khrushcheva/DonorSearch/blob/master/images/Example_form_405-05.jpg" height=30% width=30%>
+<img src="https://github.com/olga-khrushcheva/DonorSearch/blob/master/images/Example_form_405-05.jpg" height=40% width=40%>
 
 <img src="https://github.com/olga-khrushcheva/DonorSearch/blob/master/images/Example_of_recognized_table.png">
 
