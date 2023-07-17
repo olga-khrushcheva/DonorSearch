@@ -21,4 +21,5 @@
 <img src="https://github.com/olga-khrushcheva/DonorSearch/blob/master/images/Example_of_recognized_table.png">
 
 ## Разработанное решение
-За основу решения был взят класс из этого репозитория[https://github.com/livefiredev/ocr-extract-table-from-image-python)
+За основу решения был взят класс **TableExtractor** из [этого репозитория](https://github.com/livefiredev/ocr-extract-table-from-image-python), который мы доработали, добавив новые функции. Данный класс позволяет находить и извлекать таблицы из изображений, а также производить их предобработку. Итоговое решение по поиску и извлечению таблицы из изображений выглядит следующим образом.
+1. 
