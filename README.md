@@ -20,3 +20,5 @@
 
 <img src="https://github.com/olga-khrushcheva/DonorSearch/blob/master/images/Example_of_recognized_table.png">
 
+## Разработанное решение
+За основу решения был взят класс из этого репозитория[https://github.com/livefiredev/ocr-extract-table-from-image-python)
