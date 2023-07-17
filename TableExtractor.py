@@ -24,7 +24,7 @@ class TableExtractor:
         self.dilate_image(iterations=2)
         self.find_contours()
         self.filter_contours_and_leave_only_rectangles()
-         self.find_largest_contour_by_area()
+        self.find_largest_contour_by_area()
         
         if cv2.contourArea(self.contour_with_max_area) < 0.06 * self.image.shape[0] * 0.5 * self.image.shape[1]:
             self.dilate_image(iterations=1)
@@ -114,9 +114,7 @@ class TableExtractor:
         x2 = int((max_box[2]) + delta_x) if int((max_box[2]) + delta_x) <= img.shape[1] else img.shape[1]
         y2 = int((max_box[3]) + delta_y) if int((max_box[3]) + delta_y) <= img.shape[0] else img.shape[0]
         
-        self.cut_table_image = img[y1:y2, x1:x2]          
-        self.image_with_table_contour = cv2.rectangle(img.copy(), (x1, y1), (x2, y2), (0, 255, 0), 3)
-
+        self.cut_table_image = img[y1:y2, x1:x2]         
 
     def convert_image_to_grayscale(self):
         self.grayscale_image = cv2.cvtColor(self.cut_table_image, cv2.COLOR_BGR2GRAY)
@@ -135,8 +133,6 @@ class TableExtractor:
 
     def find_contours(self):
         self.contours, self.hierarchy = cv2.findContours(self.dilated_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        self.image_with_all_contours = self.thresholded_image.copy()
-        cv2.drawContours(self.image_with_all_contours, self.contours, -1, (0, 255, 0), 3)
 
     def filter_contours_and_leave_only_rectangles(self):
         self.rectangular_contours = []
@@ -145,8 +141,6 @@ class TableExtractor:
             approx = cv2.approxPolyDP(contour, 0.04 * peri, True)
             if len(approx) == 4:
                 self.rectangular_contours.append(approx)
-        self.image_with_only_rectangular_contours = self.thresholded_image.copy()
-        cv2.drawContours(self.image_with_only_rectangular_contours, self.rectangular_contours, -1, (0, 255, 0), 3)
 
     def find_largest_contour_by_area(self):
         max_area = 0
@@ -156,20 +150,13 @@ class TableExtractor:
             if area > max_area:
                 max_area = area
                 self.contour_with_max_area = contour
-        self.image_with_contour_with_max_area = self.thresholded_image.copy()
-        if self.contour_with_max_area is not None:
-            cv2.drawContours(self.image_with_contour_with_max_area, [self.contour_with_max_area], -1, (0, 255, 0), 3)
 
     def order_points_in_the_contour_with_max_area(self):
         self.image_with_points_plotted = self.thresholded_image.copy()       
         if self.contour_with_max_area is not None:
             self.contour_with_max_area_ordered = self.order_points(self.contour_with_max_area)
-            for point in self.contour_with_max_area_ordered:
-                point_coordinates = (int(point[0]), int(point[1]))
-                self.image_with_points_plotted = cv2.circle(self.image_with_points_plotted, point_coordinates, 10, (0, 0, 255), -1)
         else:
             self.contour_with_max_area_ordered = None
-            self.image_with_points_plotted = self.thresholded_image.copy()
 
     def calculate_new_width_and_height_of_image(self):
         existing_image_width = self.image.shape[1]
@@ -180,7 +167,6 @@ class TableExtractor:
                                                                                            self.contour_with_max_area_ordered[1])
             distance_between_top_left_and_bottom_left = self.calculateDistanceBetween2Points(self.contour_with_max_area_ordered[0],
                                                                                              self.contour_with_max_area_ordered[3])
-
             aspect_ratio = distance_between_top_left_and_bottom_left / distance_between_top_left_and_top_right
             self.new_image_width = existing_image_width_reduced_by_10_percent
             self.new_image_height = int(self.new_image_width * aspect_ratio)
@@ -190,7 +176,7 @@ class TableExtractor:
             delta_x = round(0.01 * self.image.shape[1])
             delta_y = round(0.01 * self.image.shape[0])
             
-            pts1 = np.float32(self.contour_with_max_area_ordered) #self.cut_table_image
+            pts1 = np.float32(self.contour_with_max_area_ordered) 
             pts1[0][0] -= delta_x
             pts1[0][1] -= delta_y
             pts1[1][0] += delta_x
@@ -208,9 +194,6 @@ class TableExtractor:
         else:
             self.perspective_corrected_image = self.thresholded_image.copy()
 
-    def draw_contours(self):
-        self.image_with_contours = self.thresholded_image.copy()
-        cv2.drawContours(self.image_with_contours,  [ self.contour_with_max_area ], -1, (0, 255, 0), 1)
 
     def calculateDistanceBetween2Points(self, p1, p2):
         dis = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
@@ -239,7 +222,6 @@ class TableExtractor:
 
         # return the ordered coordinates
         return rect
-
     
     def store_process_image(self, file_name, image):
         path = file_name
