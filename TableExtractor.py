@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 import os
-from PIL import Image as PILImage
 import torch
+from PIL import Image as PILImage
 
 class TableExtractor:
 
