@@ -13,64 +13,30 @@ class TableExtractor:
 
     def execute(self):
         self.read_crop_image()
-        #self.store_process_image("0_original.jpg", self.image)
-        
         self.imag_normalization()
-        
         self.removing_stamps()
-        #self.store_process_image("1_without_stamps.jpg", self.image_without_stamps)
-
         self.remove_noise()
-
         self.improved_image()
-        #self.store_process_image("2_improved_quality.jpg", self.improved_image)
-        
         self.table_detection()
-        #self.store_process_image("3_cut_table.jpg", self.image_with_table_contour)
-        
         self.convert_image_to_grayscale()
-        #self.store_process_image("4_grayscaled.jpg", self.grayscale_image)
-        
         self.threshold_image()
-        #self.store_process_image("5_thresholded.jpg", self.thresholded_image)
-        
         self.invert_image()
-        #self.store_process_image("6_inverteded.jpg", self.inverted_image)
-        
         self.dilate_image(iterations=2)
-        #self.store_process_image("7_dialateded.jpg", self.dilated_image)
-        
         self.find_contours()
-        #self.store_process_image("8_all_contours.jpg", self.image_with_all_contours)
-        
         self.filter_contours_and_leave_only_rectangles()
-        #self.store_process_image("9_only_rectangular_contours.jpg", self.image_with_only_rectangular_contours)
-        
-        self.find_largest_contour_by_area()
-        #self.store_process_image("10_contour_with_max_rectangular_area.jpg", self.image_with_contour_with_max_area) 
+         self.find_largest_contour_by_area()
         
         if cv2.contourArea(self.contour_with_max_area) < 0.06 * self.image.shape[0] * 0.5 * self.image.shape[1]:
             self.dilate_image(iterations=1)
-            #self.store_process_image("7_2_dialateded.jpg", self.dilated_image)
-        
             self.find_contours()
-            #self.store_process_image("8_2_all_contours.jpg", self.image_with_all_contours)
-
             self.filter_contours_and_leave_only_rectangles()
-            #self.store_process_image("9_2_only_rectangular_contours.jpg", self.image_with_only_rectangular_contours)
-
             self.find_largest_contour_by_area()
-            #self.store_process_image("10_2_contour_with_max_rectangular_area.jpg", self.image_with_contour_with_max_area) 
         
         self.order_points_in_the_contour_with_max_area()
-        #self.store_process_image("11_with_4_corner_points_plotted.jpg", self.image_with_points_plotted)
-        
         self.calculate_new_width_and_height_of_image()
         self.apply_perspective_transform()
         self.store_process_image("result/result.jpg", self.perspective_corrected_image)
         
-    #    self.add_10_percent_padding()
-    #    self.store_process_image("11_perspective_corrected_with_padding.jpg", self.perspective_corrected_image_with_padding)
         return self.perspective_corrected_image
 
 
@@ -125,7 +91,7 @@ class TableExtractor:
         outputs = self.model_for_table_detection(**inputs)
 
         # convert outputs (bounding boxes and class logits) to COCO API
-        # let's only keep detections with score > 0.9
+        # keep detections with score > 0.9
         target_sizes = torch.tensor([image.size[::-1]])
         results = self.processor_for_table_detection.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.9)[0]
 
@@ -148,8 +114,7 @@ class TableExtractor:
         x2 = int((max_box[2]) + delta_x) if int((max_box[2]) + delta_x) <= img.shape[1] else img.shape[1]
         y2 = int((max_box[3]) + delta_y) if int((max_box[3]) + delta_y) <= img.shape[0] else img.shape[0]
         
-        self.cut_table_image = img[y1:y2, x1:x2]  
-        
+        self.cut_table_image = img[y1:y2, x1:x2]          
         self.image_with_table_contour = cv2.rectangle(img.copy(), (x1, y1), (x2, y2), (0, 255, 0), 3)
 
 
@@ -195,10 +160,8 @@ class TableExtractor:
         if self.contour_with_max_area is not None:
             cv2.drawContours(self.image_with_contour_with_max_area, [self.contour_with_max_area], -1, (0, 255, 0), 3)
 
-
     def order_points_in_the_contour_with_max_area(self):
-        self.image_with_points_plotted = self.thresholded_image.copy()
-        
+        self.image_with_points_plotted = self.thresholded_image.copy()       
         if self.contour_with_max_area is not None:
             self.contour_with_max_area_ordered = self.order_points(self.contour_with_max_area)
             for point in self.contour_with_max_area_ordered:
@@ -219,7 +182,6 @@ class TableExtractor:
                                                                                              self.contour_with_max_area_ordered[3])
 
             aspect_ratio = distance_between_top_left_and_bottom_left / distance_between_top_left_and_top_right
-
             self.new_image_width = existing_image_width_reduced_by_10_percent
             self.new_image_height = int(self.new_image_width * aspect_ratio)
 
@@ -245,12 +207,6 @@ class TableExtractor:
                                                                    (self.new_image_width, self.new_image_height))
         else:
             self.perspective_corrected_image = self.thresholded_image.copy()
-
-    def add_10_percent_padding(self):
-        image_height = self.image_crop.shape[0]
-        padding = int(image_height * 0.10)
-        self.perspective_corrected_image_with_padding = cv2.copyMakeBorder(self.perspective_corrected_image, padding, padding, padding,
-                                                                           padding, cv2.BORDER_CONSTANT, value=[255, 255, 255])
 
     def draw_contours(self):
         self.image_with_contours = self.thresholded_image.copy()
