@@ -2,7 +2,7 @@ import streamlit as st
 from img2table.ocr import EasyOCR
 from img2table.document import Image
 import TableToCsv as ta
-import TableExtractor as te
+import TableExtractor1 as te
 from transformers import DetrImageProcessor, DetrForObjectDetection
 
 processor = DetrImageProcessor.from_pretrained("TahaDouaji/detr-doc-table-detection")
